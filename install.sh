@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 check_for_root() {
 	if [[ $EUID -ne 0 ]]; then
