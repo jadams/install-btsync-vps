@@ -12,30 +12,40 @@ display_usage() {
 }
 
 download() {
-	echo "Downloading..."
+	echo -n "Downloading..."
 	wget --quiet -O - https://download-cdn.getsync.com/stable/linux-x64/BitTorrent-Sync_x64.tar.gz | tar xz -C /tmp 
+	echo "[OK]"
 }
 
 install_user() {
-	echo "Adding btsync user..."
+	echo -n "Adding btsync user"
 	useradd -r -s /bin/sh -d /var/lib/btsync btsync
+	echo -n "."
 	mkdir -p /var/lib/btsync
+	echo -n "."
 	chown -R btsync:btsync /var/lib/btsync
+	echo -n "."
 	mkdir -p /var/run/btsync
+	echo -n "."
 	chown -R btsync:btsync /var/run/btsync
+	echo "[OK]"
 }
 
 install_files() {
-	echo "Installing files..."
+	echo -n "Installing files"
 	cp /tmp/btsync /usr/bin/btsync
+	echo -n "."
 	btsync --dump-sample-config | sed 's:/home/user/\.sync:/var/lib/btsync:' | sed 's:\/\/ "pid_file":  "pid_file":' | sed 's:\/\/ "storage_path":  "storage_path":' | sed 's:0\.0\.0\.0:127\.0\.0\.1:' > /etc/btsync.conf
+	echo -n "."
 	chown btsync:btsync /etc/btsync.conf
+	echo -n "."
 	chmod 600 /etc/btsync.conf
+	echo "[OK]"
 }
 
 install_service() {
-	echo "Installing service..."
-	echo "[Unit]
+	echo -n "Installing service..."
+	echo -n "[Unit]
 	Description=Bittorent Sync service
 	After=network.target
 	 
@@ -48,23 +58,33 @@ install_service() {
 	
 	[Install]
 	WantedBy=multi-user.target" > /lib/systemd/system/btsync.service
+	echo "[OK]"
 }
 
 uninstall() {
-	echo "Stopping service"
+	echo -n "Stopping service..."
 	systemctl stop btsync.service
-	echo "Disabling service"
+	echo "[OK]"
+	echo -n "Disabling service..."
 	systemctl disable btsync.service
-	echo "Removing btsync user"
+	echo "[OK]"
+	echo -n "Removing btsync user..."
 	userdel -rf btsync
-	echo "Removing btsync group"
+	echo "[OK]"
+	echo -n "Removing btsync group..."
 	groupdel btsync
-	echo "Removing files"
+	echo "[OK]"
+	echo -n "Removing files"
 	rm -f /lib/systemd/system/btsync.service
+	echo -n "."
 	rm -f /etc/btsync.conf
+	echo -n "."
 	rm -rf /var/run/btsync
+	echo -n "."
 	rm -rf /var/lib/btsync
+	echo -n "."
 	rm -f /usr/bin/btsync
+	echo "[OK]"
 }
 
 install() {
